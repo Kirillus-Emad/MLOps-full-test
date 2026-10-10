@@ -1,0 +1,26 @@
+stages:
+
+  preprocess:
+    cmd: uv run python -m src.preprocessing
+    deps:
+      - src/preprocessing.py
+      - src/config.py
+      - configs/config.yaml
+      - data/data.csv
+    outs:
+      - data/processed/train.parquet
+      - data/processed/test.parquet
+
+
+  train:
+    cmd: uv run python -m src.pipeline
+    deps:
+      - src/pipeline.py
+      - src/train.py
+      - src/evaluate.py
+      - src/tracking.py
+      - src/register.py
+      - src/config.py
+      - configs/config.yaml
+      - data/processed/train.parquet
+      - data/processed/test.parquet

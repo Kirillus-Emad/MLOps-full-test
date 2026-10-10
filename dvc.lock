@@ -1,0 +1,69 @@
+schema: '2.0'
+stages:
+  preprocess:
+    cmd: uv run python -m src.preprocessing
+    deps:
+    - path: configs/config.yaml
+      hash: md5
+      md5: 7e6a7525f1527a7ae7bc44f6a9f12a8a
+      size: 1003
+    - path: data/data.csv
+      hash: md5
+      md5: 339bec7907b4e9c4617f9cd8cc14c7b0
+      size: 141106
+    - path: src/config.py
+      hash: md5
+      md5: b09fcfb7e3bc1686568cc16593df3962
+      size: 187
+    - path: src/preprocessing.py
+      hash: md5
+      md5: 07d8020aad3a1936aed612964c026073
+      size: 2753
+    outs:
+    - path: data/processed/test.parquet
+      hash: md5
+      md5: 0f8272185de1ef744632023ed12ec51c
+      size: 9259
+    - path: data/processed/train.parquet
+      hash: md5
+      md5: bc4704f2fdbd008ef384c89f024626ee
+      size: 25957
+  train:
+    cmd: uv run python -m src.pipeline
+    deps:
+    - path: configs/config.yaml
+      hash: md5
+      md5: 7e6a7525f1527a7ae7bc44f6a9f12a8a
+      size: 1003
+    - path: data/processed/test.parquet
+      hash: md5
+      md5: 0f8272185de1ef744632023ed12ec51c
+      size: 9259
+    - path: data/processed/train.parquet
+      hash: md5
+      md5: bc4704f2fdbd008ef384c89f024626ee
+      size: 25957
+    - path: src/config.py
+      hash: md5
+      md5: b09fcfb7e3bc1686568cc16593df3962
+      size: 187
+    - path: src/evaluate.py
+      hash: md5
+      md5: 9c11595c086d1bf6bedb0b763e10c8e5
+      size: 1324
+    - path: src/pipeline.py
+      hash: md5
+      md5: 2d80279bdedbd3f8726801434d77fe19
+      size: 6246
+    - path: src/register.py
+      hash: md5
+      md5: e78effa0413c2a6d5e83d308d3575746
+      size: 2336
+    - path: src/tracking.py
+      hash: md5
+      md5: a2c1d547ad4db753ec020db1891de462
+      size: 1984
+    - path: src/train.py
+      hash: md5
+      md5: 7fb22d082f95ca677e03d24ec627b068
+      size: 3139
