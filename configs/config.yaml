@@ -1,0 +1,67 @@
+data:
+  raw_path: data/data.csv
+
+  processed_dir: data/processed
+
+  columns:
+    - rank
+    - revenue
+    - profit
+    - num. of employees
+    - Market Cap
+  
+  target:
+    Market Cap
+
+  split:
+    test_size: 0.2
+    random_state: 42
+
+  output:
+    train: train.parquet
+    test: test.parquet
+
+mlflow:
+  experiment_name: Profit Prediction
+  tracking_uri: http://127.0.0.1:5000
+  registered_model_name: ProfitPredictionModel
+
+
+training:
+  n_trials: 3
+  random_state: 42
+  optimization_metric: rmse
+
+
+models:
+
+  decision_tree:
+    enabled: true
+
+    hyperparameters:
+      max_depth:
+        type: int
+        low: 2
+        high: 5
+
+      max_features:
+        type: categorical
+        choices:
+          - null
+          - sqrt
+          - log2
+
+
+  xgboost:
+    enabled: true
+
+    hyperparameters:
+      n_estimators:
+        type: int
+        low: 80
+        high: 200
+
+      max_depth:
+        type: int
+        low: 2
+        high: 7
