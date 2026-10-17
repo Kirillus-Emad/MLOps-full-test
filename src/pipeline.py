@@ -21,11 +21,11 @@ from src.tracking import (
 from src.register import register_model
 
 
-def load_data(config):
+def load_data(config, processed_dir_override=None):
 
     data_config = config["data"]
 
-    processed_dir = data_config["processed_dir"]
+    processed_dir = processed_dir_override or data_config["processed_dir"]
 
     train_path = (
         f"{processed_dir}/"
@@ -67,7 +67,7 @@ def load_data(config):
     )
 
 
-def main():
+def main(processed_dir_override=None):
 
     # --------------------------------------------------
     # Load configuration
@@ -99,7 +99,7 @@ def main():
         y_train_full,
         X_test,
         y_test
-    ) = load_data(config)
+    ) = load_data(config, processed_dir_override=processed_dir_override)
 
     # --------------------------------------------------
     # Train / validation split

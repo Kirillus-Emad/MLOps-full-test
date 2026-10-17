@@ -12,3 +12,4 @@ wheels/
 
 # Folders
 DVC-Storage/
+airflow_data/

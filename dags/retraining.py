@@ -113,16 +113,34 @@ def download_new_s3_file(**context):
     with open(config_path) as file:
         config = yaml.safe_load(file)
 
-    local_path = PROJECT_ROOT / config["data"]["raw_path"]
+    # Airflow isolated folder: airflow_data/data.csv (not local data/data.csv)
+    local_path = PROJECT_ROOT / "airflow_data" / "data.csv"
+
+    # Remove stale file/dir from previous failed runs
+    # (prevents NotADirectoryError when data.csv exists as a folder)
+    import shutil
+
+    if local_path.is_dir():
+        shutil.rmtree(local_path)
+
+    if local_path.exists():
+        local_path.unlink()
+
     local_path.parent.mkdir(parents=True, exist_ok=True)
 
     print(f"Downloading s3://{bucket}/{key} -> {local_path}")
 
-    hook.download_file(
-        key=key,
-        bucket_name=bucket,
-        local_path=str(local_path),
+    # Use get_object + write bytes instead of hook.download_file
+    # (download_file treats local_path as dir when it exists as file)
+    s3_client = hook.get_conn()
+
+    response = s3_client.get_object(
+        Bucket=bucket,
+        Key=key,
     )
+
+    with open(local_path, "wb") as file:
+        file.write(response["Body"].read())
 
     task_instance = context["ti"]
     task_instance.xcom_push(key="s3_bucket", value=bucket)
@@ -133,10 +151,8 @@ def download_new_s3_file(**context):
 
 
 def run_preprocessing(**context):
-    """Run src/preprocessing.py on the downloaded file."""
+    """Run preprocessing on airflow_data (isolated from local data/)."""
     os.chdir(PROJECT_ROOT)
-
-    from src.preprocessing import preprocess
 
     task_instance = context["ti"]
 
@@ -145,18 +161,31 @@ def run_preprocessing(**context):
         task_ids="download_new_file",
     )
 
-    print(f"Preprocessing downloaded file: {s3_key}")
+    local_path = task_instance.xcom_pull(
+        key="local_path",
+        task_ids="download_new_file",
+    )
 
-    preprocess()
+    print(f"Preprocessing downloaded file: {s3_key}")
+    print(f"Local path: {local_path}")
+
+    from src.preprocessing import preprocess
+
+    preprocess(
+        raw_path=str(PROJECT_ROOT / "airflow_data" / "data.csv"),
+        processed_dir=str(PROJECT_ROOT / "airflow_data" / "processed"),
+    )
 
 
 def run_train_evaluate_track(**context):
-    """Run src/pipeline.py: train -> evaluate -> tracking -> register."""
+    """Run pipeline on airflow_data: train -> evaluate -> tracking -> register."""
     os.chdir(PROJECT_ROOT)
 
     from src.pipeline import main
 
-    main()
+    main(
+        processed_dir_override=str(PROJECT_ROOT / "airflow_data" / "processed"),
+    )
 
 
 default_args = {

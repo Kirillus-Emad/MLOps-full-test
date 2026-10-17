@@ -1,0 +1,25 @@
+FROM apache/airflow:3.3.2-python3.10
+
+USER root
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    graphviz \
+    && rm -rf /var/lib/apt/lists/*
+
+USER airflow
+COPY --chown=airflow:root pyproject.toml /tmp/pyproject.toml
+RUN pip install --no-cache-dir \
+    apache-airflow-providers-amazon \
+    apache-airflow-providers-postgres \
+    apache-airflow-providers-fab \
+    boto3 \
+    pyyaml \
+    dvc \
+    matplotlib \
+    mlflow \
+    numpy \
+    optuna \
+    pandas \
+    pyarrow \
+    scikit-learn \
+    xgboost \
+    psycopg2-binary

@@ -1,0 +1,120 @@
+MLOps Session 2 - Docker & Docker Compose commands used
+=====================================================
+
+Project: F:\New folder\AI Track\MLOps\tests\Session 2\
+Services: airflow (:8080 admin/admin), mlflow (:5000), postgres (:5432)
+DAG: dags/retraining.py (manual trigger, S3 -> airflow_data/ -> train/evaluate/track)
+
+-----------------------------------------------------
+1. START / BUILD
+-----------------------------------------------------
+# First time - build airflow image + pull postgres + mlflow, start all detached
+docker compose up --build -d
+
+# Start without rebuild (images already exist)
+docker compose up -d
+
+# Rebuild only airflow after Dockerfile.airflow change, no cache
+docker compose build --no-cache airflow
+docker compose up -d
+
+# Recreate one service to apply docker-compose.yml env change
+docker compose up -d --force-recreate airflow
+docker compose up -d --force-recreate mlflow
+
+-----------------------------------------------------
+2. STATUS / LOGS / CHECKS
+-----------------------------------------------------
+docker compose ps
+docker ps -a
+
+# Follow airflow startup (wait for "Airflow is ready")
+docker compose logs -f airflow
+
+# Last 100 lines
+docker compose logs airflow --tail 100
+
+# Find generated SimpleAuthManager password (old auth, before Fab switch)
+docker compose logs airflow 2>&1 | findstr "Password for user"
+
+# Check DAG parsed
+docker compose exec airflow airflow dags list | findstr retraining
+docker compose exec airflow airflow dags list-import-errors
+
+# Disk usage by images/containers/volumes
+docker system df
+docker images
+docker volume ls
+
+# List only our 3 images with sizes
+docker images --format "{{.Repository}}:{{.Tag}} {{.Size}}" | findstr /i "session airflow mlflow postgres"
+
+-----------------------------------------------------
+3. FIX DOCKER DAEMON ERRORS (Windows)
+-----------------------------------------------------
+# Error: open //./pipe/docker_engine: The system cannot find the file specified
+# Fix: start Docker Desktop, wait green "Engine running", run PowerShell as Admin
+docker ps
+docker context use desktop-linux
+
+# Restart docker service (Admin PowerShell)
+net stop com.docker.service
+net start com.docker.service
+
+# Build error: parent snapshot does not exist / export failed
+docker compose down
+docker builder prune -a -f
+docker system prune -a -f --volumes
+# Restart Docker Desktop, then:
+docker compose build --no-cache airflow
+docker compose up -d
+
+-----------------------------------------------------
+4. STOP / RESTART (keep data + images)
+-----------------------------------------------------
+# Stop containers, keep everything for instant resume
+docker compose stop
+docker compose start
+
+# Delete containers + network, keep images + postgres-data volume
+docker compose down
+
+-----------------------------------------------------
+5. FULL WIPE - AIRFLOW METADATA FRESH
+-----------------------------------------------------
+# Delete containers + network + postgres-data volume
+# (clears DAG runs, connections like aws_default, variables, users)
+# Keeps images, keeps ./mlflow.db ./mlartifacts ./data ./airflow_data on Windows
+docker compose down -v
+
+# To also clear MLflow history on Windows disk:
+del mlflow.db
+rmdir /s /q mlartifacts
+
+-----------------------------------------------------
+6. DELETE IMAGES TO SAVE SPACE (~6.8GB)
+-----------------------------------------------------
+# Our images: session2-airflow:latest 4.85GB, postgres:15 628MB, ghcr.io/mlflow/mlflow:v3.16.1 1.28GB
+docker compose down -v
+docker rmi session2-airflow:latest postgres:15 ghcr.io/mlflow/mlflow:v3.16.1 apache/airflow:3.3.2-python3.10
+docker builder prune -a -f
+docker system prune -a -f --volumes
+docker images
+
+# Alternative single command: down + volumes + images
+docker compose down -v --rmi all
+
+-----------------------------------------------------
+7. NOTES FOR THIS PROJECT
+-----------------------------------------------------
+- Airflow UI: http://localhost:8080 (FabAuthManager, fixed admin/admin)
+- MLflow UI: http://localhost:5000 (no login, --allowed-hosts * for Docker DNS)
+- Postgres: localhost:5432 user airflow / pass airflow / db airflow
+- configs/config.yaml tracking_uri must be http://mlflow:5000 for Docker,
+  http://127.0.0.1:5000 for local `uv run`
+- AWS Connection aws_default in UI: Login=AccessKey, Password=Secret,
+  Extra={"region_name": "eu-central-1"} (Frankfurt)
+- Variables: s3_data_bucket=mlops-pricing-demo, s3_data_prefix=incoming
+- Trigger retraining with {"s3_bucket": "mlops-pricing-demo", "s3_prefix": "incoming"}
+- Airflow isolated data: airflow_data/data.csv (not local data/data.csv)
+- shm_size: 2g on airflow service fixes SIGBUS in XGBoost training

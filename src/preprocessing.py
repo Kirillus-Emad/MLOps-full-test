@@ -4,15 +4,22 @@ from pathlib import Path
 from src.config import load_config
 
 
-def preprocess():
+def preprocess(raw_path=None, processed_dir=None):
     config = load_config()
     data_config = config["data"]
 
     # -------------------------
     # Configuration
     # -------------------------
-    raw_path = data_config["raw_path"]
-    processed_dir = Path(data_config["processed_dir"])
+    # Allow Airflow to override paths (isolated airflow_data/)
+    # Defaults to local data/ for `uv run python -m src.preprocessing`
+    if raw_path is None:
+        raw_path = data_config["raw_path"]
+
+    if processed_dir is None:
+        processed_dir = Path(data_config["processed_dir"])
+    else:
+        processed_dir = Path(processed_dir)
 
     columns = data_config["columns"]
 
