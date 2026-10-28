@@ -1,11 +1,20 @@
-name: Check previous ubuntu version
+name: install and use uv
 
 on: [push]
 
 jobs:
   build:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
+
+    steps:
 
     steps:
       - uses: actions/checkout@v4
-      - run: echo "repo checkout"
+
+      - uses: astral-sh/setup-uv@v6
+
+      - name: Install dependencies
+        run: uv sync --locked
+
+      - name: Run tests
+        run: uv run src/tst_uv_ci-cd.py
