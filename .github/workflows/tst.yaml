@@ -16,3 +16,4 @@ jobs:
 
       - name: Run tests
         run: uv run src/tst_uv_ci-cd.py
+        run: uv run python --version
