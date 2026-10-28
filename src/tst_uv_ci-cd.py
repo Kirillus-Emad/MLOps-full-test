@@ -1,0 +1,1 @@
+print('success run uv on github actions')
