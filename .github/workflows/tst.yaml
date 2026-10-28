@@ -1,19 +1,11 @@
 name: CI
 
-on:
-  push:
-    branches-ignore:
-      - docs/**
-    
-    paths:
-      - src/**
-    
-    tags:
-      - 'v*.*.*'
+on: [push]
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      - run: echo "hello"
+      - uses: actions/checkout@v4
+      - run: echo "repo checkout"
