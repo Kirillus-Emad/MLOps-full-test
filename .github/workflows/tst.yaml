@@ -1,6 +1,9 @@
 name: install and use uv
 
-on: [push]
+on: 
+  push:
+      branches:
+        - main
 
 jobs:
   build:
@@ -16,4 +19,6 @@ jobs:
 
       - name: Run tests
         run: uv run src/tst_uv_ci-cd.py
+
+      - name: Check Python version
         run: uv run python --version
