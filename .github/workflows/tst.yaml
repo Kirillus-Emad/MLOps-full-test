@@ -1,8 +1,15 @@
 name: CI
 
 on:
-  pull_request:
-    branches: [ main ]
+  push:
+    branches-ignore:
+      - docs/**
+    
+    paths:
+      - src/**
+    
+    tags:
+      - 'v*.*.*'
 
 jobs:
   build:
