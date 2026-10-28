@@ -1,15 +1,11 @@
-name: CI
+name: Check previous ubuntu version
 
 on: [push]
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
 
     steps:
-      - uses: actions/setup-node@v4
-        with:
-            node-version: '20'
-      - run: node --version
       - uses: actions/checkout@v4
       - run: echo "repo checkout"
