@@ -1,12 +1,24 @@
-name: CI
+name: install and use uv
 
-on:
-  pull_request:
-    branches: [ main ]
+on: 
+  push:
+      branches:
+        - main
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      - run: echo "hello"
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v6
+
+      - name: Install dependencies
+        run: uv sync --locked
+
+      - name: Run tests
+        run: uv run src/tst_uv_ci-cd.py
+
+      - name: Check Python version
+        run: uv run python --version
