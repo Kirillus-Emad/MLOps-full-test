@@ -1,9 +1,7 @@
-name: install and use uv
+name: use uv to run the priject
+run-name: uv run the project
 
-on: 
-  push:
-      branches:
-        - main
+on: [push]
 
 jobs:
   build:
