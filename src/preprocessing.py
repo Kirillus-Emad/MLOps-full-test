@@ -5,6 +5,7 @@ import pandas as pd
 from src.config import load_config
 
 
+
 def preprocess():
     config = load_config()
     data_config = config["data"]
