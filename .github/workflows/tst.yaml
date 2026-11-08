@@ -1,5 +1,5 @@
 name: use uv to run the priject
-run-name: uv run the project
+run-name: tst pre-commit
 
 on: [push]
 
@@ -20,3 +20,6 @@ jobs:
 
       - name: Check Python version
         run: uv run python --version
+
+      - name: check precommit
+        run: uv run pre-commit run --all-files
