@@ -13,13 +13,10 @@ def calculate_rmse(model, X, y):
 
 
 def build_model(model_name, params, random_state):
-
     if model_name == "decision_tree":
-
         return DecisionTreeRegressor(**params, random_state=random_state)
 
     if model_name == "xgboost":
-
         return XGBRegressor(
             **params, objective="reg:squarederror", random_state=random_state, n_jobs=-1
         )
@@ -28,25 +25,20 @@ def build_model(model_name, params, random_state):
 
 
 def suggest_parameters(trial, hyperparameters):
-
     params = {}
 
     for name, config in hyperparameters.items():
-
         parameter_type = config["type"]
 
         if parameter_type == "int":
-
             params[name] = trial.suggest_int(name, config["low"], config["high"])
 
         elif parameter_type == "float":
-
             params[name] = trial.suggest_float(
                 name, config["low"], config["high"], log=config.get("log", False)
             )
 
         elif parameter_type == "categorical":
-
             params[name] = trial.suggest_categorical(name, config["choices"])
 
         else:
@@ -66,9 +58,7 @@ def optimize_model(
     random_state,
     trial_callback=None,
 ):
-
     def objective(trial):
-
         params = suggest_parameters(trial, hyperparameters)
 
         model = build_model(model_name, params, random_state)
@@ -79,7 +69,6 @@ def optimize_model(
 
         # Let tracking.py record the trial
         if trial_callback is not None:
-
             trial_callback(
                 trial=trial,
                 model_name=model_name,

@@ -10,7 +10,6 @@ from src.train import optimize_model
 
 
 def load_data(config):
-
     data_config = config["data"]
 
     processed_dir = data_config["processed_dir"]
@@ -37,7 +36,6 @@ def load_data(config):
 
 
 def main():
-
     # --------------------------------------------------
     # Load configuration
     # --------------------------------------------------
@@ -87,7 +85,6 @@ def main():
     # --------------------------------------------------
 
     for model_name, model_config in config["models"].items():
-
         if not model_config["enabled"]:
             continue
 
@@ -132,7 +129,6 @@ def main():
         # ----------------------------------------------
 
         with start_model_run(model_name):
-
             model_info = log_best_model(
                 model=model,
                 model_name=model_name,
@@ -161,7 +157,6 @@ def main():
         print(f"\n{model_name} results:")
 
         for metric, value in metrics.items():
-
             print(f"{metric}: {value:.4f}")
 
     # --------------------------------------------------

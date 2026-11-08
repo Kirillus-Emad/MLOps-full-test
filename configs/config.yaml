@@ -9,7 +9,7 @@ data:
     - profit
     - num. of employees
     - Market Cap
-  
+
   target:
     Market Cap
 

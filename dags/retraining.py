@@ -56,17 +56,9 @@ def _resolve_s3_target(context):
     dag_run = context.get("dag_run")
     conf = getattr(dag_run, "conf", None) or {}
 
-    bucket = (
-        conf.get("s3_bucket")
-        or params.get("s3_bucket")
-        or DEFAULT_BUCKET
-    )
+    bucket = conf.get("s3_bucket") or params.get("s3_bucket") or DEFAULT_BUCKET
 
-    prefix = (
-        conf.get("s3_prefix")
-        or params.get("s3_prefix")
-        or DEFAULT_PREFIX
-    )
+    prefix = conf.get("s3_prefix") or params.get("s3_prefix") or DEFAULT_PREFIX
 
     explicit_key = conf.get("s3_key") or params.get("s3_key")
 
@@ -101,9 +93,7 @@ def download_new_s3_file(**context):
                     candidates.append((obj["LastModified"], obj_key))
 
         if not candidates:
-            raise FileNotFoundError(
-                f"No .csv found in s3://{bucket}/{prefix}/"
-            )
+            raise FileNotFoundError(f"No .csv found in s3://{bucket}/{prefix}/")
 
         candidates.sort(key=lambda item: item[0])
         key = candidates[-1][1]
@@ -182,7 +172,6 @@ with DAG(
     },
     tags=["mlops", "retraining"],
 ) as dag:
-
     wait_for_new_file = S3KeySensor(
         task_id="wait_for_new_file",
         bucket_name="{{ params.s3_bucket }}",

@@ -3,7 +3,6 @@ from mlflow.tracking import MlflowClient
 
 
 def register_model(run_id, registered_model_name, algorithm_name):
-
     client = MlflowClient()
 
     # ----------------------------------------------
