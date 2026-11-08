@@ -1,1 +1,1 @@
-print('success run uv on github actions')
+print("success run uv on github actions")
