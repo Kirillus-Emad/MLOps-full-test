@@ -1,5 +1,6 @@
-import pandas as pd
 from pathlib import Path
+
+import pandas as pd
 
 from src.config import load_config
 
@@ -30,10 +31,7 @@ def preprocess():
     # -------------------------
     # Load data
     # -------------------------
-    df = pd.read_csv(
-        raw_path,
-        usecols=columns
-    )
+    df = pd.read_csv(raw_path, usecols=columns)
 
     print(f"Original shape: {df.shape}")
 
@@ -55,10 +53,7 @@ def preprocess():
     # "abc", "hello", "" -> NaN
     # -------------------------
     for column in df.columns:
-        df[column] = pd.to_numeric(
-            df[column],
-            errors="coerce"
-        )
+        df[column] = pd.to_numeric(df[column], errors="coerce")
 
     # -------------------------
     # Remove rows containing NaN
@@ -80,25 +75,16 @@ def preprocess():
     # -------------------------
     # Split data
     # -------------------------
-    train_df = df.sample(
-        frac=1 - test_size,
-        random_state=random_state
-    )
+    train_df = df.sample(frac=1 - test_size, random_state=random_state)
 
     test_df = df.drop(train_df.index)
 
     # -------------------------
     # Save as Parquet
     # -------------------------
-    train_df.to_parquet(
-        processed_dir / train_filename,
-        index=False
-    )
+    train_df.to_parquet(processed_dir / train_filename, index=False)
 
-    test_df.to_parquet(
-        processed_dir / test_filename,
-        index=False
-    )
+    test_df.to_parquet(processed_dir / test_filename, index=False)
 
     print(f"Train shape: {train_df.shape}")
     print(f"Test shape: {test_df.shape}")

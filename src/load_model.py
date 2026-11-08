@@ -1,7 +1,6 @@
 import mlflow
 from mlflow.tracking import MlflowClient
 
-
 # ----------------------------------------------
 # MLflow setup
 # ----------------------------------------------
@@ -19,8 +18,7 @@ alias = "champion"
 # ----------------------------------------------
 
 model_version = client.get_model_version_by_alias(
-    name=registered_model_name,
-    alias=alias
+    name=registered_model_name, alias=alias
 )
 
 print("=" * 50)
@@ -60,9 +58,7 @@ print("\nModel loaded successfully!")
 # ----------------------------------------------
 
 # Four numeric input features
-X_new = [
-    [100, 50, 20, 10]
-]
+X_new = [[100, 50, 20, 10]]
 
 prediction = model.predict(X_new)
 

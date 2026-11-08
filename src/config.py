@@ -1,9 +1,8 @@
-import yaml
 from pathlib import Path
 
+import yaml
 
 CONFIG_PATH = Path("configs/config.yaml")
-
 
 
 def load_config():
